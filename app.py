@@ -303,6 +303,15 @@ def login(sb) -> bool:
     js_fill_input(sb, 'input[type="password"]', PASSWORD)
     time.sleep(3)
 
+    print("☑️ 勾选 Remember me...")
+    try:
+        remember_cb = sb.find_element('input[type="checkbox"][name*="remember"], input#remember, input[type="checkbox"]', timeout=3)
+        if not remember_cb.is_selected():
+            remember_cb.click()
+            time.sleep(0.5)
+    except Exception as e:
+        print(f"ℹ️ 未找到或无法勾选 Remember me: {e}")
+        
     # 等待 Turnstile 验证框出现（最多 10 秒）
     print("⏳ 等待 Turnstile 验证框出现...")
     ts_found = False
