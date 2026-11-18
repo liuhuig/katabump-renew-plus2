@@ -305,14 +305,22 @@ def login(sb) -> bool:
 
     print("☑️ 勾选 Remember me...")
     try:
-        remember_cb = sb.find_element('input[type="checkbox"][name*="remember"], input#remember, input[type="checkbox"]', timeout=3)
-        if not remember_cb.is_selected():
-            remember_cb.click()
-            time.sleep(0.5)
+        res = sb.execute_script("""
+            (function() {
+                var cb = document.querySelector('input[type="checkbox"][name*="remember"], input#remember, input[type="checkbox"]');
+                if (!cb) return 'not_found';
+                if (cb.checked) return 'already_checked';
+                cb.checked = true;
+                cb.dispatchEvent(new Event('change', { bubbles: true }));
+                cb.dispatchEvent(new Event('click', { bubbles: true }));
+                return 'checked_now';
+            })()
+        """)
+        print(f"ℹ️ Remember me 状态: {res}")
+        time.sleep(0.5)
     except Exception as e:
-        print(f"ℹ️ 未找到或无法勾选 Remember me: {e}")
-        
-    # 等待 Turnstile 验证框出现（最多 10 秒）
+        print(f"ℹ️ 勾选 Remember me 异常: {e}")
+
     print("⏳ 等待 Turnstile 验证框出现...")
     ts_found = False
     for i in range(10):
